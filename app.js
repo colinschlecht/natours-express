@@ -3,15 +3,22 @@ import fs from "fs";
 
 const app = express();
 
-const tuors = JSON.parse(fs.readFileSync("./dev-data/data/tours-simple.json"));
-app.get("/api/v1/tuors", (req, res) => {
+app.use(express.json());
+
+const tours = JSON.parse(fs.readFileSync("./dev-data/data/tours-simple.json"));
+app.get("/api/v1/tours", (req, res) => {
 	res.status(200).json({
 		status: "success",
-		results: tuors.length,
+		results: tours.length,
 		data: {
-			tuors,
+			tours,
 		},
 	});
+});
+
+app.post("/api/v1/tours", (req, res) => {
+	console.log(req.body);
+	res.send("done");
 });
 
 const port = 3000;
