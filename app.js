@@ -1,12 +1,32 @@
 import express from "express";
 import fs from "fs";
+import { get } from "http";
+import morgan from "morgan";
 
 const app = express();
+
 app.use(express.json());
+
+app.use(morgan("dev"));
+
+app.use((req, res, next) => {
+	console.log("hello from the middleware");
+	next();
+});
+
+app.use((req, res, next) => {
+	req.requestTime = new Date().toISOString();
+	next();
+});
+
+//route handlers
+
 const tours = JSON.parse(fs.readFileSync("./dev-data/data/tours-simple.json"));
 
 const getAllTours = (req, res) => {
+	console.log(req.requestTime);
 	res.status(200).json({
+		requestedAt: req.requestTime,
 		status: "success",
 		results: tours.length,
 		data: {
@@ -33,7 +53,7 @@ const getTour = (req, res) => {
 	}
 };
 
-const postTuor = (req, res) => {
+const createTour = (req, res) => {
 	const newId = tours[tours.length - 1].id + 1;
 	const newTour = Object.assign({ id: newId }, req.body);
 	tours.push(newTour);
@@ -89,12 +109,55 @@ const deleteTuor = (req, res) => {
 	}
 };
 
-app.get("/api/v1/tours/:id", getTour);
-app.get("/api/v1/tours", getAllTours);
-app.post("/api/v1/tours", postTuor);
-app.patch(`/api/v1/tours/:id`, updateTour);
-app.delete(`/api/v1/tours/:id`, deleteTuor);
+const getAllUsers = (req, res) => {
+	res.status(500).json({
+		status: "error",
+		message: "route not yet defined",
+	});
+};
 
+const getUser = (req, res) => {
+	res.status(500).json({
+		status: "error",
+		message: "route not yet defined",
+	});
+};
+const createUser = (req, res) => {
+	res.status(500).json({
+		status: "error",
+		message: "route not yet defined",
+	});
+};
+const updateUser = (req, res) => {
+	res.status(500).json({
+		status: "error",
+		message: "route not yet defined",
+	});
+};
+const deleteUser = (req, res) => {
+	res.status(500).json({
+		status: "error",
+		message: "route not yet defined",
+	});
+};
+
+//routes (tours)
+app.route("/api/v1/tours").get(getAllTours).post(createTour);
+app
+	.route("/api/v1/tours/:id")
+	.get(getTour)
+	.patch(updateTour)
+	.delete(deleteTuor);
+
+//routes (users)
+app.route("/api/v1/users").get(getAllUsers).post(createUser);
+app
+	.route("/api/v1/users/:id")
+	.get(getUser)
+	.patch(updateUser)
+	.delete(deleteUser);
+
+//server
 const port = 3000;
 app.listen(port, () => {
 	console.log(`app running on port ${port}...`);
